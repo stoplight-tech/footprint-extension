@@ -1,6 +1,7 @@
 // This file is ran as a background script
 
-import { supabase } from './utils/supabaseClient'
+import { createClient } from '@supabase/supabase-js'
+
 
 
 
@@ -27,15 +28,23 @@ const byteToKwhconversion = (numberOfBytes: number) => {
 chrome.windows.onRemoved.addListener(async function(windowid) {
     const {session} = await chrome.storage.session.get(['session'])
 
-    const { user } = JSON.parse(session)
+    const parsedSession = JSON.parse(session)
+
+    const user = parsedSession.user
+
     const { currentSessionBytes } = await chrome.storage.session.get(['currentSessionBytes'])
+
+
+    const supabase = createClient(process.env.REACT_APP_SUPABASE_URL as string, process.env.REACT_APP_SUPABASE_ANON_KEY as string, {global: { headers: {
+        Authorization: `Bearer ${parsedSession.access_token}`
+      }}})
 
     const { data, error }: {data: any, error: any} = await supabase
     .from('total_bytes')
     .select()
     .eq('user_id', user.id)
-    let total_bytes = currentSessionBytes
-    if (data[0] && data[0].total_bytes) {
+    let total_bytes = currentSessionBytes ? currentSessionBytes : 0
+    if (data && data[0] && data[0].total_bytes) {
         total_bytes = data.total_bytes + total_bytes
     }
 
@@ -45,7 +54,7 @@ chrome.windows.onRemoved.addListener(async function(windowid) {
     .select()
 
     
-    console.log('done')
+    console.log('Closing window now')
 })
 
 chrome.webRequest.onCompleted.addListener(async (details) => {
