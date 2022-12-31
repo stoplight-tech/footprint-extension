@@ -1,6 +1,17 @@
 const webpack = require("webpack");
 const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
+const DotenvPlugin = require('dotenv-webpack')
+
+
+const replaceWithProcessEnv = (content) => {
+  for (var key in require('dotenv').config({ path: dotenvPath }).parsed) {
+    content = content.replace(new RegExp('process.env.' + key, 'g'), process.env[key])
+  }
+  return content
+}
+
+const dotenvPath = __dirname + '/.env'
 
 const config = {
   entry: {
@@ -67,9 +78,24 @@ const config = {
     contentBase: "./dist",
   },
   plugins: [
+    new DotenvPlugin(
+      {
+        path: dotenvPath
+      }
+    ),
     new CopyPlugin({
       patterns: [{ from: "public", to: "." }],
     }),
+    // new CopyPlugin(
+    //   {patterns: [
+    //     {
+    //       from: 'public/manifest.json',
+    //       transform(content) {
+    //         return replaceWithProcessEnv(content.toString())
+    //       }
+    //     }
+    //   ]}
+    // )
   ],
 };
 

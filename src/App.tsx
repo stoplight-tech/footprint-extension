@@ -1,12 +1,15 @@
-import * as React from "react";
+import { useState, useEffect } from 'react'
+import { supabase } from './utils/supabaseClient'
+import Account from './components/Accounts'
+import {Authentication} from './components/Authentication'
+
 import logo from "./logo.svg";
 import "./App.css";
 
 const App = () => {
-  console.log('hi')
-  const [currentSessionBytes, setCurrentSessionBytes] = React.useState(0)
-  const [currentSessionCo2, setCurrentSessionCo2] = React.useState(0)
-  React.useEffect(() => {
+  const [currentSessionBytes, setCurrentSessionBytes] = useState(0)
+  const [currentSessionCo2, setCurrentSessionCo2] =useState(0)
+  useEffect(() => {
     
     // declare the async data fetching function
     const fetchData = async () => {
@@ -28,17 +31,14 @@ const App = () => {
   return (
     <div className="App">
       <header className="App-header">
-      <h1>All time Bytes sent</h1>
-    <p id="allTime"></p>
-
-    <h1>All time CO2 in KG</h1>
-    <p id="allTimeCO2"></p>
 
     <h1>Current session bytes</h1>
     <p id="currentSessionBytes"> {currentSessionBytes}</p>
 
     <h1>Current session CO2 in KG</h1>
     <p id="currentSessionCO2"> {currentSessionCo2 * 1000}</p>
+
+    <Authentication />
       </header>
     </div>
   );
